@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState } from "react";
+import { Player, GameState, GameHistory, HistoryItem } from "../types";
 import { truthQuestions, dareActions } from "../data/questions";
-import { GameState, Player, GameHistory, HistoryItem } from "../types";
 
 interface GameContextType {
   gameState: GameState;
@@ -25,9 +25,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [gameState, setGameState] = useState<GameState>("setup");
   const [players, setPlayers] = useState<Player[]>([
-    { id: 1, name: "Player 1", score: 0 },
-    { id: 2, name: "Player 2", score: 0 },
-    { id: 3, name: "Player 3", score: 0 },
+    { id: 1, name: "Player 1", score: 0, avatar: undefined },
+    { id: 2, name: "Player 2", score: 0, avatar: undefined },
+    { id: 3, name: "Player 3", score: 0, avatar: undefined },
   ]);
   const [currentPlayerIndex, setCurrentPlayerIndex] = useState(0);
   const [currentQuestion, setCurrentQuestion] = useState<string | null>(null);
@@ -139,9 +139,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
   const resetGame = () => {
     setGameState("setup");
     setPlayers([
-      { id: 1, name: "Player 1", score: 0 },
-      { id: 2, name: "Player 2", score: 0 },
-      { id: 3, name: "Player 3", score: 0 },
+      { id: 1, name: "Player 1", score: 0, avatar: undefined },
+      { id: 2, name: "Player 2", score: 0, avatar: undefined },
+      { id: 3, name: "Player 3", score: 0, avatar: undefined },
     ]);
     setCurrentPlayerIndex(0);
     setCurrentQuestion(null);
@@ -151,29 +151,31 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({
     setUsedQuestions({});
   };
 
-  const value: GameContextType = {
-    gameState,
-    players,
-    currentPlayerIndex,
-    currentQuestion,
-    questionType,
-    history,
-    round,
-    setPlayers,
-    startGame,
-    chooseOption,
-    completeChallenge,
-    resetGame,
-    nextTurn,
-  };
-
-  return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
+  return (
+    <GameContext.Provider
+      value={{
+        gameState,
+        players,
+        currentPlayerIndex,
+        currentQuestion,
+        questionType,
+        history,
+        round,
+        setPlayers,
+        startGame,
+        chooseOption,
+        completeChallenge,
+        resetGame,
+        nextTurn,
+      }}
+    >
+      {children}
+    </GameContext.Provider>
+  );
 };
 
-export const useGame = () => {
+export const useGame = (): GameContextType => {
   const context = useContext(GameContext);
-  if (context === undefined) {
-    throw new Error("useGame must be used within a GameProvider");
-  }
+  if (!context) throw new Error("useGame must be used within a GameProvider");
   return context;
 };
